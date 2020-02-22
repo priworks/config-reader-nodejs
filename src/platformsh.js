@@ -1,5 +1,3 @@
-'use strict';
-
 class NotValidPlatformError extends Error {}
 
 class BuildTimeVariableAccessError extends Error {}
@@ -257,16 +255,14 @@ class Config {
         // Verbose way it is.
 
         const routes = this.routes();
-        const filter = route => {
-            return route.type === 'upstream'
-                // On Dedicated, the upstream name sometimes is `app:http` instead of just `app`.
-                // If no name is specified then don't bother checking.
-                && (!appName || appName === route.upstream.split(':')[0]);
-        };
+        const filter = ({type, upstream}) => type === 'upstream'
+            // On Dedicated, the upstream name sometimes is `app:http` instead of just `app`.
+            // If no name is specified then don't bother checking.
+            && (!appName || appName === upstream.split(':')[0]);
 
         let ret = {};
 
-        Object.keys(routes).forEach(function(key) {
+        Object.keys(routes).forEach(key => {
             if (filter(routes[key])) {
                 ret[key] = routes[key];
             }
@@ -582,13 +578,13 @@ class Config {
  * @returns {object}
  *   A credentials object to pass to new SolrNode().
  */
-function nodeSolrFormatter(credentials) {
+function nodeSolrFormatter({host, port, path}) {
     return {
-        host: credentials.host,
-        port: credentials.port,
-        core: credentials.path.split('/').slice(-1)[0],
+        host: host,
+        port: port,
+        core: path.split('/').slice(-1)[0],
         protocol: 'http'
-    }
+    };
 }
 
 /**
@@ -624,7 +620,7 @@ function config() {
     return new Config();
 }
 
-module.exports = {
+export default {
     config
 };
 
